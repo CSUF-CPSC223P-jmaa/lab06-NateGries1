@@ -65,12 +65,14 @@ def planet(mass):
     """Construct a planet of some mass."""
     assert mass > 0
     "*** YOUR CODE HERE ***"
+    return ["planet", mass]
 
 
 def mass(w):
     """Select the mass of a planet."""
     assert is_planet(w), 'must call mass on a planet'
     "*** YOUR CODE HERE ***"
+    return w[1]
 
 
 def is_planet(w):
@@ -127,6 +129,12 @@ def balanced(m):
     True
     """
     "*** YOUR CODE HERE ***"
+    if is_planet(m):
+        return True
+    if length( left(m) ) * total_weight( end(left(m)) ) != length(right(m)) * total_weight( end(right(m)) ):
+        return False
+    return balanced(end(right(m))) and balanced(end(left(m)))
+
 
 
 def totals_tree(m):
@@ -159,6 +167,11 @@ def totals_tree(m):
     True
     """
     "*** YOUR CODE HERE ***"
+    if is_planet(m):
+        return tree(total_weight(m))
+    return tree(total_weight(m), [ totals_tree(end(left(m))), totals_tree(end(right(m))) ] )
+
+    
 
 
 def replace_loki_at_leaf(t, lokis_replacement):
@@ -191,6 +204,12 @@ def replace_loki_at_leaf(t, lokis_replacement):
     True
     """
     "*** YOUR CODE HERE ***"
+    if is_leaf(t):
+        if label(t) == 'loki':
+            return tree(lokis_replacement)
+        else:
+            return tree(label(t))
+    return tree(label(t), [replace_loki_at_leaf(branch, lokis_replacement) for branch in branches(t)])
 
 
 def has_path(t, word):
@@ -225,6 +244,24 @@ def has_path(t, word):
     """
     assert len(word) > 0, 'no path for empty word.'
     "*** YOUR CODE HERE ***"
+    branch = t
+    for letter in word:
+        exists = False
+        if branch == t:
+            if label(t) == letter:
+                branch = branches(t)
+                exists = True
+            else:
+                return False
+        else:
+            for item in branch:
+                if label(item) == letter:
+                    branch = branches(item)
+                    exists = True
+        if exists == False:
+            return False
+    return True
+
 
 
 def str_interval(x):
@@ -328,6 +365,7 @@ def tree(label, branches=[]):
     return [label] + list(branches)
 
 
+
 def label(tree):
     """Return the label value of a tree."""
     return tree[0]
@@ -338,7 +376,7 @@ def branches(tree):
     return tree[1:]
 
 
-def is_tree(tree):
+def is_tree(tree):  
     """Returns True if the given tree is a tree, and False otherwise."""
     if type(tree) != list or len(tree) < 1:
         return False
@@ -389,3 +427,4 @@ def copy_tree(t):
     5
     """
     return tree(label(t), [copy_tree(b) for b in branches(t)])
+
